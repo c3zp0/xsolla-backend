@@ -5,8 +5,15 @@ import { IProduct } from '../interfaces/IProduct';
 
 class Controller {
 
-    getList(request: Request, response: Response){
-        productModel.getList();
+    async getList(request: Request, response: Response){
+        apiReponse.send(
+            request,
+            response,
+            await productModel.getList({
+                page: Number(request.query.page),
+                elementsPerPage: Number(request.query.elementsPerPage)
+            })
+        );
     }
 
     async getById(request: Request, response: Response){

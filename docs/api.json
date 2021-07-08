@@ -1,0 +1,236 @@
+{
+    "openapi": "3.0.2",
+    "info": {
+        "title": "xsolla backend-test api",
+        "version": "0.0.1"
+    },
+    "servers": [
+        {
+            "url": "http://127.0.0.1:300/api"
+        }
+    ],
+    "tags": [
+        {
+            "name": "products"
+        }
+    ],
+    "paths": {
+        "/products/sku/{productSKU}": {
+            "get": {
+                "tags": ["products"],
+                "summary": "Информация о продукте по его SKU",
+                "description": "Получить id, sku, name, type, price товара",
+                "parameters": [
+                    {
+                        "name": "productSKU",
+                        "description": "SKU товара",
+                        "in": "path",
+                        "required": true,
+                        "schema":{
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Успешное выполнение запроса",
+                        "content": {
+                            "application/json":{
+                                "schema":{
+                                    "$ref": "#/components/schemas/ProductSchema"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "tags": ["products"],
+                "summary": "Удалить продукт по его SKU",
+                "description": "Удаляет и возвращает информацию об объекте по его SKU",
+                "parameters": [
+                    {
+                        "name": "productSKU",
+                        "description": "SKU товара",
+                        "in": "path",
+                        "required": true,
+                        "schema":{
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Успешное выполнение запроса",
+                        "content": {
+                            "application/json":{
+                                "schema":{
+                                    "$ref": "#/components/schemas/ProductSchema"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/products/{productId}": {
+            "get": {
+                "summary": "Информация о товаре по его идентификатору",
+                "description": "Получить id, sku, name, type, price товара",
+                "parameters": [
+                    {
+                        "name": "productId",
+                        "description": "Идентификатор товара",
+                        "in": "path",
+                        "required": true,
+                        "schema":{
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Успешное выполнение запроса",
+                        "content": {
+                            "application/json":{
+                                "schema":{
+                                    "$ref": "#/components/schemas/ProductSchema"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/products": {
+            "get": {
+                "summary": "Каталог товаров",
+                "description": "Получить страницу каталога. Сортировка по умолчанию по -. Количетсво элементов на страницу - 10.",
+                "parameters": [
+                    {
+                        "name": "page",
+                        "description": "Смещение на (количество элементов на страницу * (номер страницы(page) - 1))",
+                        "in": "query",
+                        "required": true,
+                        "schema":{
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "elementsPerPage",
+                        "description": "Количество элементов на страницу",
+                        "in": "query",
+                        "required": true,
+                        "schema":{
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Успешное выполнение запроса",
+                        "content": {
+                            "application/json":{
+                                "schema":{
+                                    "$ref": "#/components/schemas/ProductsListResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": ["products"],
+                "summary": "Добавить товар",
+                "description": "Добавить информацию о товаре в базу данных.",
+                "requestBody":{
+                    "content": {
+                        "application/json":{
+                            "schema":{
+                                "$ref": "#/components/schemas/ProductCreation"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201":{
+                        "description": "Товар добавлен",
+                        "content": {
+                            "application/json":{
+                                "schema":{
+                                    "type": "object",
+                                    "properties": {
+                                        "id":{
+                                            "type": "integer"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "ProductsListResponse":{
+                "type": "object",
+                "properties": {
+                    "currentPage":{
+                        "type": "integer"
+                    },
+                    "totalPages":{
+                        "type": "integer"
+                    },
+                    "elementsPerPage":{
+                        "type": "integer"
+                    },
+                    "products": {
+                        "type": "array",
+                        "items":{
+                            "$ref": "#/components/schemas/ProductSchema"
+                        }
+                    }
+                }
+            },
+            "ProductSchema": {
+                "type": "object",
+                "properties": {
+                    "id":{
+                        "type": "integer"
+                    },
+                    "sku":{
+                        "type": "string"
+                    },
+                    "name":{
+                        "type": "string"
+                    },
+                    "type": {
+                        "type": "string"
+                    },
+                    "price":{
+                        "type": "number"
+                    }
+                }
+            },
+            "ProductCreation": {
+                "type": "object",
+                "properties": {
+                    "sku":{
+                        "type": "string"
+                    },
+                    "name":{
+                        "type": "string"
+                    },
+                    "type": {
+                        "type": "string"
+                    },
+                    "price":{
+                        "type": "number"
+                    }
+                }
+            }
+        }
+    }
+}

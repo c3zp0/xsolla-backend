@@ -1,11 +1,61 @@
 import {dbClient} from '../db/connect';
 import {IProduct} from '../interfaces/IProduct'
 import { IResponse } from '../interfaces/IResponse';
+import {SQL, SQLStatement} from 'sql-template-strings';
+import {IProductCatalog} from '../interfaces/request/IProductCatalog';
 
 class Model {
 
-    async getList(){
+    async getList(args: IProductCatalog): Promise<IResponse>{
+        let limit: number = args.elementsPerPage;
+        let offset: number = args.elementsPerPage * (args.page - 1);
+        let hasFilters: boolean = false;
 
+        const queryString: SQLStatement = SQL`
+            select 
+                count(id) as count,
+                p.id,
+                p.sku,
+                p.name,
+                p.type,
+                p.price
+            from products p
+            group by p.id
+            limit ${limit} offset ${offset};
+        `;
+
+        try {
+            const stmt = await dbClient.query(queryString);
+
+            if (stmt.rowCount){
+                return {
+                    responseStatus: 200,
+                    responseData: JSON.stringify({
+                      currentPage: args.page,
+                      totalPage: stmt.rows[0].count,
+                      products: stmt.rows.map(item => {
+                          return {
+                            id: item.id,
+                            sku: item.sku,
+                            name: item.name,
+                            type: item.type,
+                            price: item.price
+                          };
+                      })
+                    })
+                };
+            }
+            return {
+                responseStatus: 404,
+                responseData: `Nothing has been found`
+            }
+        } catch (error) {
+            console.log(error.message);
+            return {
+                responseStatus: 500,
+                responseData: error.message
+            }
+        }
     }
 
     async getById(productId: number): Promise<IResponse>{
@@ -36,13 +86,13 @@ class Model {
             }
             return {
                 responseStatus: 404,
-                responseData: null
+                responseData: `null`
             };
         } catch (error) {
             console.log(`${error.message}\r\n`);
             return {
                 responseStatus: 500,
-                responseData: null
+                responseData: `null`
             }
         }
     }
@@ -113,13 +163,13 @@ class Model {
             }
             return {
                 responseStatus: 404,
-                responseData: null
+                responseData: `null`
             };
         } catch (error) {
             console.log(error.message);
             return {
                 responseStatus: 500,
-                responseData: null
+                responseData: `null`
             }
         }
 
@@ -153,23 +203,23 @@ class Model {
                 }).length){
                     return {
                         responseStatus: 201,
-                        responseData: null
+                        responseData: `null`
                     }
                 } 
                 return {
                     responseStatus: 500,
-                    responseData: null
+                    responseData: `null`
                 }
             } 
             return {
                 responseStatus: 500,
-                responseData: null
+                responseData: `null`
             }
         } catch (error) {
             console.log(error.message);
             return {
                 responseStatus: 500,
-                responseData: null
+                responseData: `null`
             }
         }
     }
@@ -201,23 +251,23 @@ class Model {
                 }).length){
                     return {
                         responseStatus: 201,
-                        responseData: null
+                        responseData: `null`
                     }
                 } 
                 return {
                     responseStatus: 500,
-                    responseData: null
+                    responseData: `null`
                 }
             } 
             return {
                 responseStatus: 500,
-                responseData: null
+                responseData: `null`
             }
         } catch (error) {
             console.log(error.message);
             return {
                 responseStatus: 500,
-                responseData: null
+                responseData: `null`
             }
         }
     }
@@ -246,13 +296,13 @@ class Model {
             }
             return {
                 responseStatus: 404,
-                responseData: null
+                responseData: `null`
             }
         } catch (error) {
             console.log(error.message);
             return {
                 responseStatus: 500,
-                responseData: null
+                responseData: `null`
             }
         }
     }
@@ -281,13 +331,13 @@ class Model {
             }
             return {
                 responseStatus: 404,
-                responseData: null
+                responseData: `null`
             }
         } catch (error) {
             console.log(error.message);
             return {
                 responseStatus: 500,
-                responseData: null
+                responseData: `null`
             }
         }
     }

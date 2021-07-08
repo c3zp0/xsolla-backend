@@ -20,7 +20,7 @@ productsRouter.post(
     productController.create
 );
 productsRouter.put(
-    '/products',
+    '/products/:productId',
     productController.updateById
 );
 productsRouter.put(

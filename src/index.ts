@@ -1,6 +1,7 @@
-import express, {Application} from 'express';
+import express, {Application, NextFunction, Request, Response} from 'express';
 import {productsRouter} from './routes/products.routes';
 import * as env from 'dotenv';
+import http from 'http';
 
 declare const process : {
     env : {
@@ -10,6 +11,12 @@ declare const process : {
 };
 
 const app: Application = express();
+const httpServer = http.createServer(app);
+
+app.use('/', (request: Request, response: Response, next: NextFunction) => {
+    console.log('Request');
+    next();
+})
 
 app.use(
     '/api',
@@ -18,7 +25,9 @@ app.use(
 
 
 
-app.listen(process.env.SERVER_PORT || 3005, process.env.SERVER_HOST, () => {
+httpServer.listen(3001, () => {
     env.config();
-    console.log(`Server started ${process.env.SERVER_HOST}:${process.env.SERVER_PORT}\r\n`);
+    console.log(`Server started`);
+    // console.log(process.env);
+    // console.log(`Server started ${process.env.SERVER_HOST}:${process.env.SERVER_PORT}\r\n`);
 });
