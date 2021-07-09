@@ -23,11 +23,11 @@ app.use(
     productsRouter
 );
 
+env.config();
 
+httpServer.listen(process.env.SERVER_PORT, process.env.SERVER_HOST, () => {
 
-httpServer.listen(3001, () => {
-    env.config();
-    console.log(`Server started`);
+    console.log(`Server started at ${process.env.SERVER_HOST}:${process.env.SERVER_PORT}`);
     // console.log(process.env);
     // console.log(`Server started ${process.env.SERVER_HOST}:${process.env.SERVER_PORT}\r\n`);
 });

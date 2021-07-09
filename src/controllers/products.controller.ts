@@ -11,7 +11,10 @@ class Controller {
             response,
             await productModel.getList({
                 page: Number(request.query.page),
-                elementsPerPage: Number(request.query.elementsPerPage)
+                elementsPerPage: Number(request.query.elementsPerPage),
+                type: request.query.type ? ([] as Array<string>).concat(request.query.type as Array<string>):null,
+                minPrice: request.query.minPrice ? Number(request.query.minPrice) : null,
+                maxPrice: request.query.maxPrice ? Number(request.query.maxPrice) : null
             })
         );
     }

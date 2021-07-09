@@ -9,7 +9,6 @@ class Model {
     async getList(args: IProductCatalog): Promise<IResponse>{
         let limit: number = args.elementsPerPage;
         let offset: number = args.elementsPerPage * (args.page - 1);
-        let hasFilters: boolean = false;
 
         const queryString: SQLStatement = SQL`
             select 
@@ -20,9 +19,19 @@ class Model {
                 p.type,
                 p.price
             from products p
-            group by p.id
-            limit ${limit} offset ${offset};
         `;
+
+        if (
+            args.type
+            || args.minPrice
+            || args.maxPrice
+        ){
+            queryString.append(SQL`where 1=1 `);
+            args.type ? queryString.append(SQL` and p.type = ANY(${args.type}) `) : null;
+            args.minPrice ? queryString.append(SQL` and p.price >= ${args.minPrice} `) : null;
+            args.maxPrice ? queryString.append(SQL` and p.price <= ${args.maxPrice} `) : null;
+        }
+        queryString.append(SQL` group by p.id limit ${limit} offset ${offset} `);
 
         try {
             const stmt = await dbClient.query(queryString);
@@ -47,13 +56,17 @@ class Model {
             }
             return {
                 responseStatus: 404,
-                responseData: `Nothing has been found`
+                responseData: JSON.stringify({
+                    error: `Nothing has been found`
+                })
             }
         } catch (error) {
             console.log(error.message);
             return {
                 responseStatus: 500,
-                responseData: error.message
+                responseData: JSON.stringify({
+                    errod: error.message
+                })
             }
         }
     }
