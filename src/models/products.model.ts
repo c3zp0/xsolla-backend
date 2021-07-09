@@ -48,7 +48,7 @@ class Model {
                             sku: item.sku,
                             name: item.name,
                             type: item.type,
-                            price: item.price
+                            price: Number(item.price)
                           };
                       })
                     })
@@ -93,7 +93,7 @@ class Model {
                         sku: stmt.rows[0].sku,
                         name: stmt.rows[0].name,
                         type: stmt.rows[0].type,
-                        price: stmt.rows[0].price
+                        price: Number(stmt.rows[0].price)
                     })
                 }
             }
@@ -136,7 +136,7 @@ class Model {
                         sku: stmt.rows[0].sku,
                         name: stmt.rows[0].name,
                         type: stmt.rows[0].type,
-                        price: stmt.rows[0].price
+                        price: Number(stmt.rows[0].price)
                     })
                 }
             }
@@ -220,8 +220,15 @@ class Model {
             const stmt = await dbClient.query(queryString, queryValues);
 
             if (stmt.rowCount){
-                if (Object.keys(product).filter((key: string) => {
-                    product[key as keyof IProduct] != stmt.rows[0][key]
+                let updatedProduct: IProduct = {
+                    id: stmt.rows[0].id,
+                    sku: stmt.rows[0].sku,
+                    name: stmt.rows[0].name,
+                    type: stmt.rows[0].type,
+                    price: Number(stmt.rows[0].price)
+                };
+                if (!Object.keys(updatedProduct).filter((key: string) => {
+                    return product[key as keyof IProduct] != updatedProduct[key as keyof IProduct]
                 }).length){
                     return {
                         responseStatus: 200,
@@ -229,7 +236,7 @@ class Model {
                             description: `UPDATED`
                         })
                     }
-                } 
+                }
                 return {
                     responseStatus: 500,
                     responseData: JSON.stringify({
@@ -238,9 +245,9 @@ class Model {
                 }
             } 
             return {
-                responseStatus: 500,
+                responseStatus: 404,
                 responseData: JSON.stringify({
-                    description: `SERVER ERROR`
+                    description: `NOT FOUND`
                 })
             }
         } catch (error) {
@@ -256,28 +263,23 @@ class Model {
 
     async updateBySKU(product: IProduct): Promise<IResponse>{
         //Валидация входящего продукта
-        const queryString: string = `
+        const queryString:  SQLStatement= SQL`
             update products 
             set
-                name = $1,
-                type = $2,
-                price = $3
-            where sku = $4
+                id = ${product.id},
+                name = ${product.name},
+                type = ${product.type},
+                price = ${product.price}
+            where sku = ${product.sku}
             returning id, sku, name, type, price;
-        `;
-        const queryValues = [
-            product.sku,
-            product.name,
-            product.type,
-            product.price
-        ];
+        `; 
 
         try {
-            const stmt = await dbClient.query(queryString, queryValues);
+            const stmt = await dbClient.query(queryString);
 
             if (stmt.rowCount){
-                if (Object.keys(product).filter((key: string) => {
-                    product[key as keyof IProduct] != stmt.rows[0][key]
+                if (!Object.keys(product).filter((key: string) => {
+                    return product[key as keyof IProduct] != stmt.rows[0][key]
                 }).length){
                     return {
                         responseStatus: 200,
@@ -294,9 +296,9 @@ class Model {
                 }
             } 
             return {
-                responseStatus: 500,
+                responseStatus: 404,
                 responseData: JSON.stringify({
-                    description: `SERVER ERROR`
+                    description: `NOT FOUND`
                 })
             }
         } catch (error) {
@@ -332,7 +334,7 @@ class Model {
                 return {
                     responseStatus: 500,
                     responseData: JSON.stringify({
-                        description: `RESOURSE DOESN'T DELETED`
+                        description: `SERVER ERROR`
                     })
                 }
             }

@@ -37,7 +37,7 @@ class Controller {
 
     async create(request: Request, response: Response){
         let product: IProduct = {
-            sku: request.body.SKU,
+            sku: request.body.sku,
             name: request.body.name,
             type: request.body.type,
             price: request.body.price
@@ -46,9 +46,10 @@ class Controller {
     }
 
     async updateById(request: Request, response: Response){
+        console.log(request.body);
         let product: IProduct = {
-            id: request.body.productId,
-            sku: request.body.SKU,
+            id: Number(request.params.productId),
+            sku: request.body.sku,
             name: request.body.name,
             type: request.body.type,
             price: request.body.price
@@ -62,8 +63,8 @@ class Controller {
 
     async updateBySKU(request: Request, response: Response){
         let product: IProduct = {
-            id: request.body.productId,
-            sku: request.body.SKU,
+            id: request.body.id,
+            sku: request.params.productSKU,
             name: request.body.name,
             type: request.body.type,
             price: request.body.price
@@ -71,7 +72,7 @@ class Controller {
         apiReponse.send(
             request,
             response,
-            await productModel.updateById(product)
+            await productModel.updateBySKU(product)
         );
     }
 
@@ -87,7 +88,7 @@ class Controller {
         apiReponse.send(
             request,
             response,
-            await productModel.deleteById(Number(request.params.productId))
+            await productModel.deleteBySKU(request.params.productSKU)
         );
     }
 

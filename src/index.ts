@@ -13,8 +13,10 @@ declare const process : {
 const app: Application = express();
 const httpServer = http.createServer(app);
 
+app.use(express.json({limit: '1mb'}));
+
 app.use('/', (request: Request, response: Response, next: NextFunction) => {
-    console.log('Request');
+    console.log(`Request - ${request.url}`);
     next();
 })
 

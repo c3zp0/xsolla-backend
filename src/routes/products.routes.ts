@@ -20,18 +20,18 @@ productsRouter.post(
     productController.create
 );
 productsRouter.put(
+    '/products/sku/:productSKU',
+    productController.updateBySKU
+)
+productsRouter.put(
     '/products/:productId',
     productController.updateById
 );
-productsRouter.put(
-    'products/sku/:productSKU',
-    productController.updateBySKU
-)
+productsRouter.delete(
+    '/products/sku/:productSKU',
+    productController.deleteBySKU
+);
 productsRouter.delete(
     '/products/:productId',
     productController.deleteById
 );
-productsRouter.delete(
-    'products/sku/productSKU',
-    productController.deleteBySKU
-)
