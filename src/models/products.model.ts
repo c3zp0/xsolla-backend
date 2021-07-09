@@ -57,7 +57,7 @@ class Model {
             return {
                 responseStatus: 404,
                 responseData: JSON.stringify({
-                    error: `Nothing has been found`
+                    desciption: `NOT FOUND`
                 })
             }
         } catch (error) {
@@ -99,19 +99,22 @@ class Model {
             }
             return {
                 responseStatus: 404,
-                responseData: `null`
+                responseData: JSON.stringify({
+                    description: `NOT FOUND`
+                })
             };
         } catch (error) {
             console.log(`${error.message}\r\n`);
             return {
                 responseStatus: 500,
-                responseData: `null`
+                responseData: JSON.stringify({
+                    description: `SERVER ERROR`
+                })
             }
         }
     }
 
     async getBySKU(productSKU: string){
-        //Валидация ску?
         const queryString: string = `
             select 
                 p.id,
@@ -139,13 +142,17 @@ class Model {
             }
             return {
                 responseStatus: 404,
-                responseData: null
+                responseData: JSON.stringify({
+                    description: `NOT FOUND`
+                })
             };
         } catch (error) {
             console.log(`${error.message}\r\n`);
             return {
                 responseStatus: 500,
-                responseData: null
+                responseData: JSON.stringify({
+                    description: `SERVER ERROR`
+                })
             }
         }
     }
@@ -175,14 +182,16 @@ class Model {
                 };
             }
             return {
-                responseStatus: 404,
-                responseData: `null`
+                responseStatus: 204,
+                responseData: JSON.stringify({
+                    description: `RESOURSE DOESN'T CREATED`
+                })
             };
         } catch (error) {
             console.log(error.message);
             return {
                 responseStatus: 500,
-                responseData: `null`
+                responseData: `SERVER ERROR`
             }
         }
 
@@ -215,24 +224,32 @@ class Model {
                     product[key as keyof IProduct] != stmt.rows[0][key]
                 }).length){
                     return {
-                        responseStatus: 201,
-                        responseData: `null`
+                        responseStatus: 200,
+                        responseData: JSON.stringify({
+                            description: `UPDATED`
+                        })
                     }
                 } 
                 return {
                     responseStatus: 500,
-                    responseData: `null`
+                    responseData: JSON.stringify({
+                        description: `RESOURSE DOEN'T UPDATED`
+                    })
                 }
             } 
             return {
                 responseStatus: 500,
-                responseData: `null`
+                responseData: JSON.stringify({
+                    description: `SERVER ERROR`
+                })
             }
         } catch (error) {
             console.log(error.message);
             return {
                 responseStatus: 500,
-                responseData: `null`
+                responseData: JSON.stringify({
+                    description: `SERVER ERROR`
+                })
             }
         }
     }
@@ -263,24 +280,32 @@ class Model {
                     product[key as keyof IProduct] != stmt.rows[0][key]
                 }).length){
                     return {
-                        responseStatus: 201,
-                        responseData: `null`
+                        responseStatus: 200,
+                        responseData: JSON.stringify({
+                            description: `RESOURSE UPDATED`
+                        })
                     }
                 } 
                 return {
                     responseStatus: 500,
-                    responseData: `null`
+                    responseData: JSON.stringify({
+                        description: `RESOURSE DOESN'T UPDATED`
+                    })
                 }
             } 
             return {
                 responseStatus: 500,
-                responseData: `null`
+                responseData: JSON.stringify({
+                    description: `SERVER ERROR`
+                })
             }
         } catch (error) {
             console.log(error.message);
             return {
                 responseStatus: 500,
-                responseData: `null`
+                responseData: JSON.stringify({
+                    description: `SERVER ERROR`
+                })
             }
         }
     }
@@ -296,26 +321,34 @@ class Model {
             const stmt = await dbClient.query(queryString, [productId]);
 
             if (stmt.rowCount){
+                if (stmt.rows[0].id === productId) {
+                    return {
+                        responseStatus: 204,
+                        responseData: JSON.stringify({
+                            description: `RESOURSE DELETED`
+                        })
+                    }
+                }
                 return {
-                    responseStatus: 200,
+                    responseStatus: 500,
                     responseData: JSON.stringify({
-                        id: stmt.rows[0].id,
-                        sku: stmt.rows[0].sku,
-                        name: stmt.rows[0].name,
-                        type: stmt.rows[0].type,
-                        price: stmt.rows[0].price
+                        description: `RESOURSE DOESN'T DELETED`
                     })
                 }
             }
             return {
                 responseStatus: 404,
-                responseData: `null`
+                responseData: JSON.stringify({
+                    description: `RESOURSE NOT FOUND`
+                })
             }
         } catch (error) {
             console.log(error.message);
             return {
                 responseStatus: 500,
-                responseData: `null`
+                responseData: JSON.stringify({
+                    description: `SERVER ERROR`
+                })
             }
         }
     }
@@ -331,26 +364,34 @@ class Model {
             const stmt = await dbClient.query(queryString, [productSKU]);
 
             if (stmt.rowCount){
+                if (stmt.rows[0].sku === productSKU) {
+                    return {
+                        responseStatus: 204,
+                        responseData: JSON.stringify({
+                            description: `RESOURSE DELETED`
+                        })
+                    }
+                }
                 return {
-                    responseStatus: 200,
+                    responseStatus: 500,
                     responseData: JSON.stringify({
-                        id: stmt.rows[0].id,
-                        sku: stmt.rows[0].sku,
-                        name: stmt.rows[0].name,
-                        type: stmt.rows[0].type,
-                        price: stmt.rows[0].price
+                        description: `RESOURSE DOESN'T DELETED`
                     })
                 }
             }
             return {
                 responseStatus: 404,
-                responseData: `null`
+                responseData: JSON.stringify({
+                    description: `RESOURSE NOT FOUND`
+                })
             }
         } catch (error) {
             console.log(error.message);
             return {
                 responseStatus: 500,
-                responseData: `null`
+                responseData: JSON.stringify({
+                    description: `SERVER ERROR`
+                })
             }
         }
     }
