@@ -2,11 +2,24 @@ import {Request, Response} from 'express';
 import {productModel} from '../models/products.model';
 import {apiReponse} from '../view/response';
 import { IProduct } from '../interfaces/IProduct';
+import { IProductCatalog } from '../interfaces/request/IProductCatalog';
 
 class Controller {
 
-    getList(request: Request, response: Response){
-        productModel.getList();
+    async getList(request: Request, response: Response){
+        let args: IProductCatalog = {
+            page: Number(request.query.page),
+            elementsPerPage: Number(request.query.elementsPerPage)
+        };
+        request.query.type ? args.type = ([] as Array<string>).concat(request.query.type as Array<string>): null;
+        request.query.minPrice ? args.minPrice = Number(request.query.minPrice): null;
+        request.query.maxPrice ? args.maxPrice = Number(request.query.maxPrice): null;
+
+        apiReponse.send(
+            request,
+            response,
+            await productModel.getList(args)
+        );
     }
 
     async getById(request: Request, response: Response){
@@ -27,7 +40,7 @@ class Controller {
 
     async create(request: Request, response: Response){
         let product: IProduct = {
-            sku: request.body.SKU,
+            sku: request.body.sku,
             name: request.body.name,
             type: request.body.type,
             price: request.body.price
@@ -36,9 +49,10 @@ class Controller {
     }
 
     async updateById(request: Request, response: Response){
+        console.log(request.body);
         let product: IProduct = {
-            id: request.body.productId,
-            sku: request.body.SKU,
+            id: Number(request.params.productId),
+            sku: request.body.sku,
             name: request.body.name,
             type: request.body.type,
             price: request.body.price
@@ -52,8 +66,8 @@ class Controller {
 
     async updateBySKU(request: Request, response: Response){
         let product: IProduct = {
-            id: request.body.productId,
-            sku: request.body.SKU,
+            id: request.body.id,
+            sku: request.params.productSKU,
             name: request.body.name,
             type: request.body.type,
             price: request.body.price
@@ -61,7 +75,7 @@ class Controller {
         apiReponse.send(
             request,
             response,
-            await productModel.updateById(product)
+            await productModel.updateBySKU(product)
         );
     }
 
@@ -77,7 +91,7 @@ class Controller {
         apiReponse.send(
             request,
             response,
-            await productModel.deleteById(Number(request.params.productId))
+            await productModel.deleteBySKU(request.params.productSKU)
         );
     }
 
