@@ -7,6 +7,16 @@ import {IProductCatalog} from '../interfaces/request/IProductCatalog';
 class Model {
 
     async getList(args: IProductCatalog): Promise<IResponse>{
+        let argsErrors = this.listOfProductsRequestValidator(args);
+        if (argsErrors.length != 0){
+            return {
+                responseStatus: 400,
+                responseData: JSON.stringify({
+                    errors: argsErrors
+                })
+            }
+        }
+
         let limit: number = args.elementsPerPage;
         let offset: number = args.elementsPerPage * (args.page - 1);
 
@@ -72,6 +82,18 @@ class Model {
     }
 
     async getById(productId: number): Promise<IResponse>{
+        if (
+            !productId 
+            || productId <= 0
+        ){
+            return {
+                responseStatus: 400,
+                responseData: JSON.stringify({
+                    errors: 'Неккоректное значение идентификатора продукта'
+                })
+            }
+        }
+        
         const queryString: string = `
             select 
                 p.id,
@@ -114,7 +136,16 @@ class Model {
         }
     }
 
-    async getBySKU(productSKU: string){
+    async getBySKU(productSKU: string): Promise<IResponse>{
+        if(!productSKU || productSKU.length > 10 || productSKU.trim().length === 0){
+            return {
+                responseStatus: 400,
+                responseData: JSON.stringify({
+                    errors: `Неккоректное значение SKU`
+                })
+            }
+        }
+
         const queryString: string = `
             select 
                 p.id,
@@ -158,7 +189,17 @@ class Model {
     }
 
     async create(product: IProduct): Promise<IResponse>{
-        //Валидация продукта
+        let requestBodyErrors = this.validateproductBody(product);
+        if (requestBodyErrors.length){
+            return {
+                responseStatus: 400,
+                responseData: JSON.stringify({
+                    errors: requestBodyErrors
+                })
+            }
+        }
+
+        
         const queryString: string = `
             insert into products(sku, name, type, price)
             values ($1, $2, $3, $4) 
@@ -198,6 +239,16 @@ class Model {
     }
 
     async updateById(product: IProduct): Promise<IResponse>{
+        let requestBodyErrors = this.validateproductBody(product);
+        if (requestBodyErrors.length){
+            return {
+                responseStatus: 400,
+                responseData: JSON.stringify({
+                    errors: requestBodyErrors
+                })
+            }
+        }
+
         const queryString: string = `
             update products 
             set
@@ -262,6 +313,16 @@ class Model {
     }
 
     async updateBySKU(product: IProduct): Promise<IResponse>{
+        let requestBodyErrors = this.validateproductBody(product);
+        if (requestBodyErrors.length){
+            return {
+                responseStatus: 400,
+                responseData: JSON.stringify({
+                    errors: requestBodyErrors
+                })
+            }
+        }
+
         //Валидация входящего продукта
         const queryString:  SQLStatement= SQL`
             update products 
@@ -313,6 +374,18 @@ class Model {
     }
 
     async deleteById(productId: number): Promise<IResponse>{
+        if (
+            !productId 
+            || productId <= 0
+        ){
+            return {
+                responseStatus: 400,
+                responseData: JSON.stringify({
+                    errors: 'Неккоректное значение идентификатора продукта'
+                })
+            }
+        }
+
         const queryString: string = `
             delete from products
             where id = $1
@@ -356,6 +429,15 @@ class Model {
     }
 
     async deleteBySKU(productSKU: string): Promise<IResponse>{
+        if(!productSKU || productSKU.length > 10 || productSKU.trim().length === 0){
+            return {
+                responseStatus: 400,
+                responseData: JSON.stringify({
+                    errors: `Неккоректное значение SKU`
+                })
+            }
+        }
+
         const queryString: string = `
             delete from products
             where sku = $1
@@ -396,6 +478,91 @@ class Model {
                 })
             }
         }
+    }
+
+    private listOfProductsRequestValidator(args: IProductCatalog){
+        let requestBodyErrors = [];
+
+        if (
+            !args.page 
+            || args.page <= 0
+        ){
+            requestBodyErrors.push(`Некорректное значение страницы`);
+        }
+
+        if (
+            !args.elementsPerPage
+            || args.elementsPerPage <= 0
+        ){
+            requestBodyErrors.push(`Некорректное значение количество элементов на страницу`);
+        }
+
+        if (
+            args.hasOwnProperty('minPrice') && (
+                !args.minPrice
+                || args.minPrice <= 0
+                || (
+                    args.hasOwnProperty('maxPrice') && (args.maxPrice) && (args.minPrice > args.maxPrice)
+                )
+            )
+        ){
+            requestBodyErrors.push(`Некорректное значение минимальной цены`)
+        }
+
+        if (
+            args.hasOwnProperty('maxPrice') && (
+                !args.maxPrice
+                || args.maxPrice <= 0
+            )
+        ){
+            requestBodyErrors.push(`Некорректное значение максимальной цены`)
+        }
+        
+        return requestBodyErrors
+    }
+
+    validateproductBody(product: IProduct){
+        let errors = [];
+
+        if (
+            !product.name
+            || product.name.trim().length === 0
+        ){
+            errors.push(`Неккоректное имя товара`);
+        }
+
+        if (
+            !product.price
+            || product.price <= 0
+        ){
+            errors.push(`Неккоректная цена продукта`)
+        } 
+
+        if (
+            !product.sku
+            || product.sku.length > 10
+            || product.sku.trim().length === 0
+        ){
+            errors.push(`Неккоректноe SKU товара`);
+        }
+
+        if (
+            !product.type
+            || product.type.trim().length === 0
+        ){
+            errors.push(`Неккоректное значение типа товара`)
+        }
+
+        if(
+            product.hasOwnProperty('id') && (
+                !product.id
+                || product.id <= 0
+            )
+        ){
+            errors.push(`Неккоректное значение идентификатора товара`)
+        }
+
+        return errors;
     }
 
 }

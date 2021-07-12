@@ -2,20 +2,23 @@ import {Request, Response} from 'express';
 import {productModel} from '../models/products.model';
 import {apiReponse} from '../view/response';
 import { IProduct } from '../interfaces/IProduct';
+import { IProductCatalog } from '../interfaces/request/IProductCatalog';
 
 class Controller {
 
     async getList(request: Request, response: Response){
+        let args: IProductCatalog = {
+            page: Number(request.query.page),
+            elementsPerPage: Number(request.query.elementsPerPage)
+        };
+        request.query.type ? args.type = ([] as Array<string>).concat(request.query.type as Array<string>): null;
+        request.query.minPrice ? args.minPrice = Number(request.query.minPrice): null;
+        request.query.maxPrice ? args.maxPrice = Number(request.query.maxPrice): null;
+
         apiReponse.send(
             request,
             response,
-            await productModel.getList({
-                page: Number(request.query.page),
-                elementsPerPage: Number(request.query.elementsPerPage),
-                type: request.query.type ? ([] as Array<string>).concat(request.query.type as Array<string>):null,
-                minPrice: request.query.minPrice ? Number(request.query.minPrice) : null,
-                maxPrice: request.query.maxPrice ? Number(request.query.maxPrice) : null
-            })
+            await productModel.getList(args)
         );
     }
 

@@ -10,7 +10,7 @@ END $$;
 
 create table products(
     id serial,
-    sku varchar(6) unique,
+    sku varchar(10) unique,
     name varchar(200),
     type varchar(100),
     price numeric(10,5)
