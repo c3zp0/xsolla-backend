@@ -34,7 +34,7 @@ class Controller {
         apiReponse.send(
             request, 
             response,
-            await productModel.getById(Number(request.params.productSKU))
+            await productModel.getBySKU(request.params.productSKU)
         );
     }
 
