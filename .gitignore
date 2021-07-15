@@ -3,3 +3,4 @@ build/
 package-lock.json
 docs/todo.md
 .vscode/
+coverage/
