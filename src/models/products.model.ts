@@ -85,6 +85,7 @@ class Model {
         if (
             !productId 
             || productId <= 0
+            || Math.ceil(productId) != productId
         ){
             return {
                 responseStatus: 400,
@@ -263,27 +264,10 @@ class Model {
             const stmt = await dbClient.query(queryString, queryValues);
 
             if (stmt.rowCount){
-                let updatedProduct: IProduct = {
-                    id: stmt.rows[0].id,
-                    sku: stmt.rows[0].sku,
-                    name: stmt.rows[0].name,
-                    type: stmt.rows[0].type,
-                    price: Number(stmt.rows[0].price)
-                };
-                if (!Object.keys(updatedProduct).filter((key: string) => {
-                    return product[key as keyof IProduct] != updatedProduct[key as keyof IProduct]
-                }).length){
-                    return {
-                        responseStatus: 200,
-                        responseData: JSON.stringify({
-                            description: `UPDATED`
-                        })
-                    }
-                }
                 return {
-                    responseStatus: 500,
+                    responseStatus: 200,
                     responseData: JSON.stringify({
-                        description: `RESOURSE DOEN'T UPDATED`
+                        description: `UPDATED`
                     })
                 }
             } 
@@ -331,20 +315,10 @@ class Model {
             const stmt = await dbClient.query(queryString);
 
             if (stmt.rowCount){
-                if (!Object.keys(product).filter((key: string) => {
-                    return product[key as keyof IProduct] != stmt.rows[0][key]
-                }).length){
-                    return {
-                        responseStatus: 200,
-                        responseData: JSON.stringify({
-                            description: `RESOURSE UPDATED`
-                        })
-                    }
-                } 
                 return {
-                    responseStatus: 500,
+                    responseStatus: 200,
                     responseData: JSON.stringify({
-                        description: `RESOURSE DOESN'T UPDATED`
+                        description: `RESOURSE UPDATED`
                     })
                 }
             } 
@@ -388,18 +362,10 @@ class Model {
             const stmt = await dbClient.query(queryString, [productId]);
 
             if (stmt.rowCount){
-                if (stmt.rows[0].id === productId) {
-                    return {
-                        responseStatus: 202,
-                        responseData: JSON.stringify({
-                            description: `RESOURSE DELETED`
-                        })
-                    }
-                }
                 return {
-                    responseStatus: 500,
+                    responseStatus: 202,
                     responseData: JSON.stringify({
-                        description: `SERVER ERROR`
+                        description: `RESOURSE DELETED`
                     })
                 }
             }
@@ -440,18 +406,10 @@ class Model {
             const stmt = await dbClient.query(queryString, [productSKU]);
 
             if (stmt.rowCount){
-                if (stmt.rows[0].sku === productSKU) {
-                    return {
-                        responseStatus: 202,
-                        responseData: JSON.stringify({
-                            description: `RESOURSE DELETED`
-                        })
-                    }
-                }
                 return {
-                    responseStatus: 500,
+                    responseStatus: 202,
                     responseData: JSON.stringify({
-                        description: `RESOURSE DOESN'T DELETED`
+                        description: `RESOURSE DELETED`
                     })
                 }
             }
