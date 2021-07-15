@@ -65,9 +65,9 @@ class Model {
                 };
             }
             return {
-                responseStatus: 404,
+                responseStatus: 204,
                 responseData: JSON.stringify({
-                    desciption: `NOT FOUND`
+                    desciption: `NO CONTENT`
                 })
             }
         } catch (error) {
@@ -120,9 +120,9 @@ class Model {
                 }
             }
             return {
-                responseStatus: 404,
+                responseStatus: 204,
                 responseData: JSON.stringify({
-                    description: `NOT FOUND`
+                    description: `NO CONTENT`
                 })
             };
         } catch (error) {
@@ -172,9 +172,9 @@ class Model {
                 }
             }
             return {
-                responseStatus: 404,
+                responseStatus: 204,
                 responseData: JSON.stringify({
-                    description: `NOT FOUND`
+                    description: `NO CONTENT`
                 })
             };
         } catch (error) {
@@ -214,18 +214,10 @@ class Model {
 
         try {
             const stmt = await dbClient.query(queryString, queryValues);
-            if (stmt.rowCount){
-                return {
-                    responseStatus: 201,
-                    responseData: JSON.stringify({
-                        id: stmt.rows[0].id
-                    })
-                };
-            }
             return {
-                responseStatus: 204,
+                responseStatus: 201,
                 responseData: JSON.stringify({
-                    description: `RESOURSE DOESN'T CREATED`
+                    id: stmt.rows[0].id
                 })
             };
         } catch (error) {
@@ -296,9 +288,9 @@ class Model {
                 }
             } 
             return {
-                responseStatus: 404,
+                responseStatus: 204,
                 responseData: JSON.stringify({
-                    description: `NOT FOUND`
+                    description: `NO CONTENT`
                 })
             }
         } catch (error) {
@@ -357,9 +349,9 @@ class Model {
                 }
             } 
             return {
-                responseStatus: 404,
+                responseStatus: 204,
                 responseData: JSON.stringify({
-                    description: `NOT FOUND`
+                    description: `NO CONTENT`
                 })
             }
         } catch (error) {
@@ -398,7 +390,7 @@ class Model {
             if (stmt.rowCount){
                 if (stmt.rows[0].id === productId) {
                     return {
-                        responseStatus: 204,
+                        responseStatus: 202,
                         responseData: JSON.stringify({
                             description: `RESOURSE DELETED`
                         })
@@ -412,9 +404,9 @@ class Model {
                 }
             }
             return {
-                responseStatus: 404,
+                responseStatus: 204,
                 responseData: JSON.stringify({
-                    description: `RESOURSE NOT FOUND`
+                    description: `NO CONTENT`
                 })
             }
         } catch (error) {
@@ -450,7 +442,7 @@ class Model {
             if (stmt.rowCount){
                 if (stmt.rows[0].sku === productSKU) {
                     return {
-                        responseStatus: 204,
+                        responseStatus: 202,
                         responseData: JSON.stringify({
                             description: `RESOURSE DELETED`
                         })
@@ -464,9 +456,9 @@ class Model {
                 }
             }
             return {
-                responseStatus: 404,
+                responseStatus: 204,
                 responseData: JSON.stringify({
-                    description: `RESOURSE NOT FOUND`
+                    description: `NO CONTENT`
                 })
             }
         } catch (error) {
@@ -517,6 +509,14 @@ class Model {
         ){
             requestBodyErrors.push(`Некорректное значение максимальной цены`)
         }
+
+        if (
+            args.hasOwnProperty('type') && (
+                args.type?.filter(type => type.trim().length > 0).length === 0
+            )
+        ){
+            requestBodyErrors.push(`Неккоректное значение типов товаров`)
+        }
         
         return requestBodyErrors
     }
@@ -557,6 +557,7 @@ class Model {
             product.hasOwnProperty('id') && (
                 !product.id
                 || product.id <= 0
+                || Math.ceil(product.id) != product.id
             )
         ){
             errors.push(`Неккоректное значение идентификатора товара`)
