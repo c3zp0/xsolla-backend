@@ -3,23 +3,8 @@ import { productModel } from '../models/products.model';
 import { dbClient } from '../db/connect'
 import dotenv from 'dotenv';
 import { IResponse } from '../interfaces/IResponse';
-import { isEqual } from 'lodash'
 
 dotenv.config();
-
-//Существуют только если вставить данные
-const exitingProduct: IProduct = {
-    sku: 'hplpa5a24',
-    name: 'HP Pavilion',
-    type: 'laptop',
-    price: 567.0074
-}
-
-const CONST_PRODUCTS_SKU: Array<string> = [
-    `hplpa5a24`,
-    `vblpa9a54`,
-    `mslpi5n68`
-]
 
 describe(`Create product`, () => {
     test(`Base test`, async () => {
@@ -44,7 +29,17 @@ describe(`Create product`, () => {
         expect((await productModel.create(product)).responseStatus).toBe(400);
     }),
     test(`Create product with existing SKU`, async () => {
-        expect((await productModel.create(exitingProduct)).responseStatus).toBe(500);
+        let product: IProduct = {
+            name: [...Array(Math.floor(Math.random()*200))].map(item => (~~(Math.random()*36)).toString(36)).join(''),
+            sku:  [...Array(9)].map(item => (~~(Math.random()*36)).toString(36)).join(''),
+            type:  [...Array(Math.floor(Math.random()*100))].map(item => (~~(Math.random()*36)).toString(36)).join(''),
+            price: Math.random() * 1000
+        }
+        const successCreationResponse: IResponse = await productModel.create(product);
+        expect(successCreationResponse.responseStatus).toBe(201);
+
+        const existingSKUCreateResponse: IResponse = await productModel.create(product);
+        expect(existingSKUCreateResponse.responseStatus).toBe(500);
     }),
     test(`Create product with invalid product body`, async () => {
         let product: IProduct = {
@@ -61,6 +56,15 @@ describe(`Create product`, () => {
 
 describe(`Get list of products`, () => {
     test(`Base test`, async () => {
+        let product: IProduct = {
+            name: [...Array(Math.floor(Math.random()*200))].map(item => (~~(Math.random()*36)).toString(36)).join(''),
+            sku:  [...Array(9)].map(item => (~~(Math.random()*36)).toString(36)).join(''),
+            type:  [...Array(Math.floor(Math.random()*100))].map(item => (~~(Math.random()*36)).toString(36)).join(''),
+            price: Math.random() * 1000
+        }
+        const createResponse = await productModel.create(product);
+        expect(createResponse.responseStatus).toBe(201);
+
         let response = await productModel.getList({
             page: 1,
             elementsPerPage: 5
@@ -70,12 +74,21 @@ describe(`Get list of products`, () => {
         expect(typeof JSON.parse(response.responseData).products[0].id).toEqual('number');
     }),
     test(`Get list with optional parameters`, async () => {
+        let product: IProduct = {
+            name: [...Array(Math.floor(Math.random()*200))].map(item => (~~(Math.random()*36)).toString(36)).join(''),
+            sku:  [...Array(9)].map(item => (~~(Math.random()*36)).toString(36)).join(''),
+            type:  [...Array(Math.floor(Math.random()*100))].map(item => (~~(Math.random()*36)).toString(36)).join(''),
+            price: Math.random() * 1000
+        }
+        const createResponse = await productModel.create(product);
+        expect(createResponse.responseStatus).toBe(201);
+
         let response = await productModel.getList({
             page: 1,
             elementsPerPage: 5,
-            type: ['laptop', 'another type', 'qq'],
-            minPrice: 12,
-            maxPrice: 1000
+            type: [product.type],
+            minPrice: 1,
+            maxPrice: product.price + 1000
         });
 
         expect(response.responseStatus).toBe(200);
@@ -268,11 +281,7 @@ describe(`Delete products`, () => {
 afterAll(async () => {
     const getList: IResponse = await productModel.getList({page: 1, elementsPerPage: 100});
 
-    let productsForDelete: Array<IProduct> = (JSON.parse(getList.responseData).products as Array<IProduct>).filter(product => {
-        if (!CONST_PRODUCTS_SKU.includes(product.sku)){
-            return product
-        }
-    })
+    let productsForDelete: Array<IProduct> = (JSON.parse(getList.responseData).products as Array<IProduct>);
 
     Promise.all(productsForDelete.map(product => {
         if (product.id){
