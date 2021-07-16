@@ -4,6 +4,8 @@
 
 [![Status](https://img.shields.io/badge/status-active-success.svg)]()
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](/LICENSE)
+[![Chat]()
+
 
 </div>
 
@@ -19,7 +21,7 @@
 - [Настройка](#configuration)
 - [Тестирование](#tests)
 - [Зависимости](#dependencies)
-
+- [Контакты](#contacts)
 
 ## 🧐 Описание <a name = "about"></a>
 
@@ -107,3 +109,8 @@
 - [Typescript](https://github.com/Microsoft/TypeScript)
 - [Jest](https://github.com/facebook/jest)
 - [Lodash](https://github.com/lodash/lodash)
+
+## Контакты <a name = "contacts"></a>
+
+- Почта: siarhei.me@gmail.com 
+- Telegram: <a href = "t.me/c3zp0">@c3zp0</a>
